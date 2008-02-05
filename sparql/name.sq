@@ -1,0 +1,10 @@
+# url=http://tommorris.org/foaf
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+SELECT ?name WHERE
+{
+  OPTIONAL {
+    ?g a foaf:PersonalProfileDocument;
+    foaf:primaryTopic ?person .
+  }
+  ?person foaf:name ?name .
+}
