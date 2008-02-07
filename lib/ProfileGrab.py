@@ -59,8 +59,22 @@ class ProfileGrab:
         self.author = unicode(''.join(selectedNames[0].findAll(text=True)).strip())
     
   
+  def getFoafFromHtml(self):
+    # get rdf/xml links
+    data = rdflib.ConjunctiveGraph()
+    for i in self.soup.query("link", {"type": "application/rdf+xml", "href": True}):
+      data.add(str(i['href']))
+    
+    # get n3 links
+    for i in self.soup.query("link", {"type": "application/n3", "href": True}):
+      data.add(str(i['href']), 'n3')
+    
+    if len(data) is not 0:
+      return data
+    else:
+      return False
   
-  def foaf(self, uri):
+  def getNameFromFoaf(self, uri):
     foaf = rdflib.ConjunctiveGraph(uri)
     queryString = """PREFIX foaf: <http://xmlns.com/foaf/0.1/>
     SELECT ?name WHERE {
