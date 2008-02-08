@@ -44,9 +44,7 @@ class BlogDetection:
     
     self.data = urllib2.urlopen(self.uri)
     self.soup = BeautifulSoup(self.data)
-    self.linkHunt()
     
-  def linkHunt(self):
     # detect rss feeds
     if self.soup.find(['a', 'link'], {"href": True, "type": "application/rss+xml"}):
       self.probability += 0.2 * len(self.soup.findAll(['a', 'link'], {"href": True, "type": "application/rss+xml"}))
@@ -67,6 +65,10 @@ class BlogDetection:
     if self.soup.find(text="Permalink") or self.soup.find(text="permalink"):
       self.probability += 0.4
     
+    # look for meta-generator
+    if self.soup.find(text="Powered by WordPress") or self.soup.find('meta', {"name":"generator", "content": re.compile("WordPress")}):
+      self.probability += 0.4
+    
     # detect xfn links to technorati (profiles - as per tantek.com)
     if self.soup.find(['a', 'link'], {"href": re.compile("technorati.com"), "rel": re.compile("me")}) is not None:
       self.probability += 0.6
@@ -78,7 +80,7 @@ class BlogDetectionTests(unittest.TestCase):
   def test_class(self):
     self.assert_(BlogDetection)
   def test_hostingServicesShouldReturnTrue(self):
-    blogs = ['http://stephenlaw.blogspot.com', 'http://epeus.blogspot.com/', 'http://eirepreneur.blogs.com/', 'http://unlimitededition.wordpress.com/', 'http://tupelobizbuzz.wordpress.com/', 'http://tantek.com/', 'http://scripting.com/', 'http://tommorris.org/blog/', 'http://cubicgarden.com/', 'http://danbri.org/words/', 'http://techcrunch.com/', 'http://adactio.com/journal/', 'http://backstage.bbc.co.uk/news/']
+    blogs = ['http://stephenlaw.blogspot.com', 'http://epeus.blogspot.com/', 'http://eirepreneur.blogs.com/', 'http://unlimitededition.wordpress.com/', 'http://tupelobizbuzz.wordpress.com/', 'http://tantek.com/', 'http://scripting.com/', 'http://tommorris.org/blog/', 'http://cubicgarden.com/', 'http://danbri.org/words/', 'http://techcrunch.com/', 'http://adactio.com/journal/', 'http://backstage.bbc.co.uk/news/', 'http://boingboing.net/', 'http://reason.com/hitandrun/', 'http://theshiftedlibrarian.com/']
     for i in blogs:
       self.assertEqual(bool(int(round(BlogDetection(str(i)).probability))), True, str(i) + " should be detected as a blog")
   
