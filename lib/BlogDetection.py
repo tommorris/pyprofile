@@ -7,14 +7,15 @@ Detect whether or not something is a blog. Unfortunately will not tell you wheth
 
 Criteria:
 * Stuff hosted on Blogspot, WordPress or TypePad seem blogs almost by definition.
-* Look for RSS feed
+* Look for RSS feed, and check XML inside
 * Look for authorship consistency
 * Look for the words 'Comments', 'TrackBack', 'blogroll'
 * Look for telltale signs of common blog widgets (MyBlogLog)
 * Look for telltales of popular classnames and blog template markup structure
 * XFN?
-* Look for the word 'blog'!
+* Look for the word 'blog' (and in meta-tags)!
 * Look for 'Submit to Digg/Reddit/del.icio.us' links
+* Check Technorati
 
 Created by Tom Morris on 2008-02-07.
 """
@@ -44,9 +45,11 @@ class BlogDetectionTests(unittest.TestCase):
 	def test_class(self):
 	  self.assert_(BlogDetection)
 	def test_hostingServicesShouldReturnTrue(self):
-	  print BlogDetection("http://tantek.com/").probability
-	  self.assertEqual(bool(int(BlogDetection("http://tantek.com/").probability)), False)
-	  self.assertEqual(bool(int(BlogDetection("http://epeus.blogspot.com/").probability)), True)
+    blogs = ['http://tantek.com/', 'http://epeus.blogspot.com/', 'http://scripting.com/', 'http://tommorris.org/blog/', 'http://cubicgarden.com/', 'http://danbri.org/words/', 'http://techcrunch.com/', 'http://adactio.com/journal/', 'http://stephenlaw.blogspot.com/', 'http://']
+    for i in blogs:
+      self.assertEqual(bool(int(BlogDetection(str(i)).probability)), True)
+#   self.assertEqual(bool(int(BlogDetection("http://tantek.com/").probability)), True)
+#   self.assertEqual(bool(int(BlogDetection("http://epeus.blogspot.com/").probability)), True)
 
 
 if __name__ == '__main__':
