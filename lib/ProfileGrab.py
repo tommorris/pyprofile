@@ -8,9 +8,7 @@ Created by Tom Morris on 2008-01-25.
 Name parsing ideas
 2. Look for hCards with uid
 3. Look for hCard with name that is over 75 percent levenshtein of the non-TLD components of names
-4. Look for RSS feeds and parse the data out of there.
 5. Look for linked FOAF data and SPARQL it out of there.
-6. Look for mailtos and get the text, then run to see if it's "name-like"?
 - parse 'posted by' from wordpress
 """
 
@@ -40,6 +38,9 @@ class ProfileGrab:
     # 4. Look for RSS feeds and parse the names out of there
     if self.author is None:
       self.detectRss()
+    
+    if self.author is None:
+      self.mailtoLinkDetect()
   
   def hcard(self):
     # declare
@@ -118,6 +119,11 @@ class ProfileGrab:
       if len(authorarray) is not 0:
         self.author = unicode(getMostPopularFromList(authorarray))
   
+  def mailtoLinkDetect(self):
+    mailtoLinks = self.soup.findAll(['a', 'link'], {'href': re.compile('mailto:')})
+    if len(mailtoLinks) is not 0:
+      self.author = unicode(mailtoLinks[0].contents[0])
+  
 
 
 def getMostPopularFromList(inlist):
@@ -154,9 +160,15 @@ class ProfileGrabTests(unittest.TestCase):
   def test_ianforrester(self):
     self.assertEqual(ProfileGrab("http://www.cubicgarden.com/").author, u"Ian Forrester")
   def test_andybudd(self):
-    self.assertEqual(ProfileGrab("http://www.andybudd.com/").author, u"Andy Budd")	
-#	  self.assertEqual(ProfileGrab("http://scienceblogs.com/pharyngula/").author, u"PZ Myers")
-#   self.assertEqual(ProfileGrab("http://aralbalkan.com/").author, u"Aral Balkan")
+    self.assertEqual(ProfileGrab("http://www.andybudd.com/").author, u"Andy Budd")
+  def test_colinschluter(self):
+    self.assertEqual(ProfileGrab("http://www.colinschlueter.com/").author, u"Colin Schlüter")
+  def test_molly(self):
+    self.assertEqual(ProfileGrab("http://molly.com/").author, u"Molly Holzschlag")
+  def test_aralbalkan(self):
+    self.assertEqual(ProfileGrab("http://aralbalkan.com/").author, u"Aral Balkan")
+  def test_pzmyers(self):
+	  self.assertEqual(ProfileGrab("http://scienceblogs.com/pharyngula/").author, u"PZ Myers")
 
 
 if __name__ == '__main__':
